@@ -1,2 +1,2 @@
 build:
-	gcc -c *.c heapster
+	gcc -o heapster *.c

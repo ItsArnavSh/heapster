@@ -24,16 +24,15 @@ void signalCreater(){
 void crasher(uint32_t size){
     char *memory = mmap(NULL,size,PROT_READ | PROT_WRITE,MAP_PRIVATE | MAP_ANONYMOUS,-1,0);
     printf("Starting memory is: %p\n",memory);
-    //Now we start filling up this sweet sweet memory till we crash
     while(1){
-        *(memory++) = 'A';//Just fill it up with As
+        *(memory--) = 'A';//Just fill it up with As
     }
 }
 int main() {
     // Set up the signal handler for SIGSEGV (segfault)
     signalCreater();
 
-    crasher(12288+1);
+    crasher(1);
 
     return 0;
 }
