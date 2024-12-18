@@ -1,4 +1,11 @@
 #include"allocator.h"
+#include "memStatus.h"
+#include <stdio.h>
 int main() {
-    allocate(10);
+    void *a = allocate(5);
+
+    void *b = allocate(1);
+
+    printf("\nValue of %d %d\n",a,b);
+
 }

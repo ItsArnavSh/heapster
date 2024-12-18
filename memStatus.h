@@ -13,10 +13,10 @@ typedef struct memFunc{
     freeSlot slots[512];
     uint32_t size;
 }memFunc;
-void memAdd(int memory);
 void memRemove();
 extern memFunc keys;
-//extern void* memory;
+extern void* memory;
 void* startAllocation();
 void* bestMatch(uint8_t);
+void memAdd(void* addr,uint8_t size);
 #endif

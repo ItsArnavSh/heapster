@@ -1,4 +1,6 @@
 #include "memStatus.h"
+#include <limits.h>
+#include <stdio.h>
 void* memory;
 memFunc keys;
 
@@ -11,19 +13,34 @@ void* startAllocation(){
     return memory;
 }
 void* bestMatch(uint8_t size){
+    void* sol;
     //We will just ierate through keys to find the best fit
     int bestMatch = 0;
     for(short i=1;i<keys.size;i++){
-        if(keys.slots[i].size > bestMatch && keys.slots[i].size  >= size){
+        printf("Here2\n");
+        if(keys.slots[i].size < keys.slots[bestMatch].size && keys.slots[i].size  >= size){
             bestMatch = i;
         }
-        if(bestMatch==size){
+        if(keys.slots[bestMatch].size==size){
             break;
         }
     }
-    if(bestMatch<size){
-        return startAllocation();
-
+    if(keys.slots[bestMatch].size<size){
+        printf("Here\n");
+        sol = startAllocation();
+        keys.size++;
+        bestMatch = 0;
     }
-    return keys.slots[bestMatch].start;
+    sol =  keys.slots[bestMatch].start;
+
+    //Now we have the sol, and its at index bestMatch
+    keys.slots[bestMatch].start += size;
+    keys.slots[bestMatch].size -= size;
+    printf("Condition after allocation: size->%d\n",keys.slots[bestMatch].size);
+    return sol;
+}
+void memPrinter(){
+    for(int i=0;i<keys.size;i++){
+        printf("Free Slot %d",keys.slots[i].size);
+    }
 }
