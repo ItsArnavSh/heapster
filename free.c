@@ -40,8 +40,9 @@ void createFreeA(void* memory,uint16_t size){
 
     }
 }
-void convertToFreeA(void* memory,uint16_t size){
+void convertToFreeA(void* memory){
     //So We are given a memory and we have to
+
 }
 void convertToFreeB(void* memory,uint16_t size){
 

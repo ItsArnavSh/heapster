@@ -1,9 +1,10 @@
 #include "memory.h"
 
 void * memStart  = NULL;
+void* freeStart = NULL;
+ void* buckets[9];
 void startUP(){
     //FIrst we  set everything up
-    freeStart = NULL;
     for(uint8_t i = 0;i<9;i++)
         buckets[i] = NULL;
     //Now we will request for memory from mmap
