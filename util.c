@@ -9,63 +9,106 @@ uint8_t noOfBits(uint16_t size){
     return bits;
 }
 void* encode(void* loc,uint32_t totalSize,bool allocated){
+    uint32_t copy = totalSize;
     uint8_t metadataSize = totalBytes(totalSize);
     printf("MetaData Size is %d\n",metadataSize);
     uint8_t *val = loc;
-    if(metadataSize==1){
-        *val |= ((totalSize<<2));
-        *val |= allocated<<1;
-        *val &= 0b11111110;
+    *val = 0;
+    switch(metadataSize){
+    case 1:
+        *val |= ((totalSize<<3));
+        *val |= allocated<<2;
+        break;
+    case 2:
+        //The last one should have 00 at the end
+        *val |= 0b11111100&(totalSize<<2);
+        *val |= 0b10;
 
-    }
-    else{
-        while(1){
-            *val = 0;
-            *val |= 0b11111100&((totalSize<<2));
-            totalSize >>= 6;
-            if(totalSize){
-                *val |= 0b11;//We will modify the starting and ending values accordingly
-            }
-            else{
-                *val |= (allocated<<1) | 1;
-                break;
-            }
+        totalSize >>= 6;
+        //The First one will have  1 at the end
+        val = val+1;
+        *val = 0;
+        *val |= ((totalSize<<3));
+        *val |= allocated<<2 | 0b01;
 
-            val++;
-        }
-        //Now we just need to make the very first one's least significant bit 0 again
-        val = loc;
-        *val &= 0b11111110;
+
+    break;
+    case 3:
+        //The last one should have 00 at the end
+        *val |= 0b11111100&(totalSize<<2);
+        *val |= 0b10;
+
+        totalSize >>= 6;
+        //The one in the middle
+        ++val;
+        *val |= 0b11111100&(totalSize<<2);
+        totalSize >>= 6;
+        * val |= 0b11;
+        //The First one will have  1 at the end
+        val++;
+        *val = 0;
+        *val |= ((totalSize<<3));
+        *val |= allocated<<2 | 0b01;
+    break;
+    default:
+    break;
     }
-    //Now we will copy it towards the end
-    //The entire length is totalSize
+
     val = loc;
+
     for(uint8_t i=0;i<metadataSize;i++){
-        printBinary(*(val+i));
+
+        *(val+copy-i-1)=*(val+i);
+
     }
-    for(uint8_t i=0;i<metadataSize;i++){
-        *(val+totalSize-i-1)=*(val+i);
-    }
+    val = loc;
     return loc+metadataSize;
 }
 uint32_t decodeSize(void* loc){
     uint8_t* val = --loc;
     uint32_t num = 0;
+    if((0b00000011&*val)==0){
+
+         num |= (*val)>>3;
+    }
+    else{
     do{
+        if((*val&0b00000001) && !(*val&0b00000010)){
+            num |= (*val)>>3;
+        }
+        else{
+
         num = num<<6;
         num |= (*val)>>2;
-    }while(*(val--)&0b1);
+        }
+
+    }while(*(val--)&0b1);}
     return num;
 }
 uint32_t getSize(void* loc){
 
     //We are given an address and we have to get the size of that chunk
-    int num = 0;
+    //First off, we have to reach the first point of address of this block
+    uint8_t *iter = loc;
+    //The First block is the only one where second LSB is 0
+    if((*iter&0b00000011)==0){//Means a case of only a single byte
+        return decodeSize(iter+1);//It will do the heavylifting!
+    }
+    iter++;//Now we go on to the second bit bot hint
+    //If it ends with 11, means it is a 3 byte
+    //If if ends with 01. means it is a 2 byte
+    if(!(*iter&0b10)){
+        //Means 2 byte
+        return decodeSize(iter+1);
+    }
+    else{
+        //Means 3 byte
+        return decodeSize(iter+2);
+    }
 
-    return num;
 }
 uint32_t totalBytes(uint32_t num){
-    return ceil((double)(noOfBits(num))/6);
+    return ceil((double)(noOfBits(num)+1)/6);
 }
 uint32_t sizeCalc(uint32_t size){
     //This function receies a size and returns the size+2*metadata
