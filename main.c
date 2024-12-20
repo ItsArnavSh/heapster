@@ -2,13 +2,13 @@
 #include "util.h"
 #include <stdlib.h>
 int main(){
-    for(int i=1;;i++){
-    int ml = i;
+    int ml =12;
+    for(;;ml++){
     printf("Encoding: %d\n",ml);
     void* a = malloc(ml);
-    a = encode(a,ml,i);
-    printf("Decode Size = %d\n",decodeSize(a));
-    if(decodeSize(a)!=i){
+    void* b = encode(a,ml,1);
+    if(ml!=getSize(a)){
+    printf("Size of a from start is: %d",getSize(a));
         break;
     }
     }
