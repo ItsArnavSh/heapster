@@ -19,4 +19,5 @@ typedef struct chunkDetails{
     bool status;
 }chunkDetails;
 chunkDetails getDetails(void* loc);
+chunkDetails getDetailsBack(void* loc);
 #endif
