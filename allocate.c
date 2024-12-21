@@ -5,7 +5,7 @@ void* alloc(uint16_t size){
     uint8_t *iter = memStart;
     uint16_t totalSize = sizeCalc(size);
     chunkDetails data = getDetails(iter);
-    while(!data.status && data.availableSize<totalSize){
+    while(!data.status || data.availableSize<totalSize){
         iter = iter+data.TotalSize+1;
         data = getDetails(iter);
     }

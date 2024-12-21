@@ -5,7 +5,8 @@
 #include "memory.h"
 int main(){
     startUP();
-    alloc(100);
-    alloc(200);
+    void* mem = alloc(50);
+    void* mem2 = alloc(50);
+    release(mem);
     printMemory();
 }

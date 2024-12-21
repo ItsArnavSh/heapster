@@ -9,9 +9,5 @@
 //D 1,2 Bytes
 
 void* createFreeA(void* memory,uint16_t size);
-
-void convertToFreeA(void* memory);
-void convertToFreeB(void* memory,uint16_t size);
-void convertToFreeC(void* memory,uint16_t size);
-void convertToFreeD(void* memory,uint16_t size);
+void release(void* mem);
 #endif
