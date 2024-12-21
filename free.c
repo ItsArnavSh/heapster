@@ -1,55 +1,42 @@
 #include "free.h"
+#include "debug.h"
+#include "memory.h"
 #include "util.h"
+#include <stdio.h>
 #include <sys/types.h>
-void createFreeA(void* memory,uint16_t size){
-    //First we find the number of bits in given size, plan accordingly
-    uint8_t bits = noOfBits(size);
 
-    //First we make up the first bit for representation
-    uint8_t first = (size & 0b111111)<<2;
-    first |= 1;
-    int temp[7];
-    uint8_t tlen = 1;
-    //Now we see if we need more
-    size = size>>6;
-    if(!size){
-        first &= 0b01;
+void* createFreeA(void* memory,uint16_t size){
+    void* mem = encode(memory, size, 1);
+    return mem;
+}
+void release(void* mem){
+    void* startMem = mem-totalBytes(decodeSize(mem));
+    chunkDetails current = getDetails(startMem);//-decodeSize(mem)+1);
+    //So we get a memory, then we check to the left or right for merges
+    //Check Next
+    chunkDetails dataNext = getDetails(mem+current.availableSize+current.metaSize+1);
+    chunkDetails dataPrev;
+    dataPrev.status = 0;
+    if(memStart!=startMem){
+        dataPrev = getDetailsBack(startMem-1);
+        //printf("\nHere is the dataPrev: ");
+        //printDetails(dataPrev);
     }
-    else{
-        while(1){
-            temp[tlen] = (size & 0b1111111)<<1;//Shift by 1, for the indicator
-            size >>= 7;
-            if(size){
-                temp[tlen] |=0b1;//If there is more, mark last bit as 1
-            }
-            else {
-                temp[tlen] &= 0;
-                break;
-            }
-            tlen++;
+    //printf("Previous One is: %s\n",(dataPrev.status?"Free":"Allocated"));
 
-        }
+    if(dataNext.status || dataPrev.status){
+    if(dataNext.status){//Means the next one is also free, So we can merge easy peasy
+        createFreeA(mem-totalBytes(decodeSize(mem)), current.TotalSize+dataNext.TotalSize);
+        current.TotalSize = current.TotalSize+dataNext.TotalSize;
+        printf("Right Merge Performed\n");
     }
-    //Now we will lay down the
-    uint8_t* memInt = (uint8_t*)memory;
-    for(int i=0;i<=tlen;i++){
-        memInt[tlen] = temp[tlen];
-    memInt[tlen+1] = first;
-    //Now we will leave the space for memory, as said
-
-
+    if(dataPrev.status){//Means the next one is also free, So we can merge easy peasy
+        createFreeA(mem-dataPrev.TotalSize, current.TotalSize+dataPrev.TotalSize);
+        printf("Left Merge Performed\n");
+    }}
+    else{//Means only this one needs to be changed
+    printf("Mono Merge Performed\n");
+    uint8_t *val = --mem;
+    *val = (*val)|0b00000100;
     }
-}
-void convertToFreeA(void* memory){
-    //So We are given a memory and we have to
-
-}
-void convertToFreeB(void* memory,uint16_t size){
-
-}
-void convertToFreeC(void* memory,uint16_t size){
-
-}
-void convertToFreeD(void* memory,uint16_t size){
-
 }

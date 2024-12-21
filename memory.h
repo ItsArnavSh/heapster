@@ -4,8 +4,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/mman.h>
-#define ALLOCSIZE 12287
-extern void* memStart;//For the entire memory
+#define ALLOCSIZE 12200
+extern void* memStart;//Starting point for the entire memory
 extern void* freeStart;//For the large free blocks
 extern void* buckets[9];//For storing 10 to 18 bytes
+void startUP();
 #endif
