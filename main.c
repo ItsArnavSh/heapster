@@ -1,15 +1,11 @@
 #include "main.h"
+#include "allocate.h"
 #include "util.h"
-#include <stdlib.h>
+#include "debug.h"
+#include "memory.h"
 int main(){
-    int ml =12;
-    for(;;ml++){
-    printf("Encoding: %d\n",ml);
-    void* a = malloc(ml);
-    void* b = encode(a,ml,1);
-    if(ml!=getSize(a)){
-    printf("Size of a from start is: %d",getSize(a));
-        break;
-    }
-    }
+    startUP();
+    alloc(100);
+    alloc(200);
+    printMemory();
 }

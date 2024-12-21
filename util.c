@@ -11,7 +11,6 @@ uint8_t noOfBits(uint16_t size){
 void* encode(void* loc,uint32_t totalSize,bool allocated){
     uint32_t copy = totalSize;
     uint8_t metadataSize = totalBytes(totalSize);
-    printf("MetaData Size is %d\n",metadataSize);
     uint8_t *val = loc;
     *val = 0;
     switch(metadataSize){
@@ -132,4 +131,42 @@ void printBinary(uint32_t num) {
         }
     }
     printf("\n");
+}
+
+chunkDetails getDetails(void* loc){
+    chunkDetails data;
+    //We are given an address and we have to get the size of that chunk
+    //First off, we have to reach the first point of address of this block
+    uint8_t *iter = loc;
+    //The First block is the only one where second LSB is 0
+    if((*iter&0b00000011)==0){//Means a case of only a single byte
+        data.memStart = iter+1;
+        data.TotalSize =  decodeSize(data.memStart);//It will do the heavylifting!
+        data.metaSize = 1;
+        data.availableSize = data.TotalSize-2;
+        data.status = (*iter)&0b00000100;
+    }
+    else{
+    iter++;//Now we go on to the second bit bot hint
+    //If it ends with 11, means it is a 3 byte
+    //If if ends with 01. means it is a 2 byte
+    if(!(*iter&0b10)){
+        //Means 2 byte
+        data.memStart = iter+1;
+        data.TotalSize =  decodeSize(data.memStart);
+        data.metaSize = 2;
+        data.availableSize = data.TotalSize-4;
+        data.status = (*iter)&0b00000100;
+
+    }
+    else{
+        //Means 3 byte
+        data.memStart = iter+2;
+        data.TotalSize = decodeSize(data.memStart);
+        data.metaSize = 3;
+        data.availableSize = data.TotalSize-6;
+        data.status = *(iter+1)&0b00000100;
+    }
+    }
+    return data;
 }
