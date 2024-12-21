@@ -3,4 +3,5 @@
 #include "util.h"
 void analyseChunk(void* memory);
 void printMemory();
+void printDetails(chunkDetails data);
 #endif

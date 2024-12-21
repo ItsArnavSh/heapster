@@ -6,7 +6,8 @@
 int main(){
     startUP();
     void* mem = alloc(50);
-    void* mem2 = alloc(50);
+    printMemory();
     release(mem);
+    printf("after free:\n");
     printMemory();
 }
