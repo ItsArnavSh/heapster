@@ -18,7 +18,7 @@ void release(void* mem){
     chunkDetails dataPrev;
     dataPrev.status = 0;
     if(memStart!=startMem){
-        dataPrev = getDetailsBack(startMem-1);
+        dataPrev = getDetailsBack(mem-totalBytes(decodeSize(mem))-2);
         //printf("\nHere is the dataPrev: ");
         //printDetails(dataPrev);
     }
@@ -31,12 +31,15 @@ void release(void* mem){
         printf("Right Merge Performed\n");
     }
     if(dataPrev.status){//Means the next one is also free, So we can merge easy peasy
-        createFreeA(mem-dataPrev.TotalSize, current.TotalSize+dataPrev.TotalSize);
+        createFreeA(mem-dataPrev.TotalSize-2, current.TotalSize+dataPrev.TotalSize);
+        printf("TotalSize %d",current.TotalSize+dataPrev.TotalSize);
         printf("Left Merge Performed\n");
     }}
     else{//Means only this one needs to be changed
     printf("Mono Merge Performed\n");
-    uint8_t *val = --mem;
-    *val = (*val)|0b00000100;
+    uint8_t *nstart = mem-totalBytes(decodeSize(mem));
+    chunkDetails data = getDetails(nstart);
+    encode(nstart, data.TotalSize, 1);
+
     }
 }
